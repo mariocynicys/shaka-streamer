@@ -17,7 +17,7 @@ import math
 import re
 
 from . import configuration
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
 
 
 class BitrateString(configuration.ValidatingType, str):
@@ -35,12 +35,25 @@ class BitrateString(configuration.ValidatingType, str):
       raise ValueError('not a bitrate string (e.g. 500k or 7.5M)')
 
 
+class AudioOutputFormat(enum.Enum):
+  """An Enum subclass that lists all the valid audio ouptut formats."""
+
+  MP4 = 'mp4'
+  WEBM = 'webm'
+
+
 class AudioCodec(enum.Enum):
 
   AAC: str = 'aac'
   OPUS: str = 'opus'
   AC3: str = 'ac3'
   EAC3: str = 'eac3'
+
+  def __init__(self, value):
+    self._output_format: Optional[AudioOutputFormat] = None
+
+  def set_output_format(self, output_format: AudioOutputFormat):
+    self._output_format = output_format
 
   def is_hardware_accelerated(self) -> bool:
     """Returns True if this codec is hardware accelerated."""
@@ -57,20 +70,29 @@ class AudioCodec(enum.Enum):
 
     return self.value
 
-  def get_output_format(self) -> str:
+  def get_output_format(self) -> AudioOutputFormat:
     """Returns an FFmpeg output format suitable for this codec."""
-    # TODO: consider Opus in mp4 by default
-    # TODO(#31): add support for configurable output format per-codec
-    if self == AudioCodec.OPUS:
-      return 'webm'
-    elif (self == AudioCodec.AAC) or (self == AudioCodec.AC3) or (self == AudioCodec.EAC3):
-      return 'mp4'
-    else:
-      assert False, 'No mapping for output format for codec {}'.format(
-          self.value)
+    if self._output_format is None:
+      raise RuntimeError('No mapping for output format for codec {}'.format(
+        self.value))
+    return self._output_format
 
 
-# TODO: ideally, we wouldn't have to explicitly list hw: variants
+DEFAULLT_AUDIO_CODECS_OUTPUT_FORMAT = {
+  AudioCodec.AAC: AudioOutputFormat.MP4,
+  AudioCodec.OPUS: AudioOutputFormat.WEBM,
+  AudioCodec.AC3: AudioOutputFormat.MP4,
+  AudioCodec.EAC3: AudioOutputFormat.MP4,
+}
+
+
+class VideoOutputFormat(enum.Enum):
+  """An Enum subclass that lists all the valid video ouptut formats."""
+
+  MP4 = 'mp4'
+  WEBM = 'webm'
+
+
 class VideoCodec(enum.Enum):
 
   H264 = 'h264'
@@ -88,6 +110,7 @@ class VideoCodec(enum.Enum):
   def __init__(self, value):
     # Set all the codecs not to be hardware accelerated at the begining.
     self._hw_acc = False
+    self._output_format: Optional[VideoOutputFormat] = None
 
   @classmethod
   def _missing_(cls, value: object) -> 'VideoCodec':
@@ -110,19 +133,23 @@ class VideoCodec(enum.Enum):
 
     return self.value
 
-  def get_output_format(self) -> str:
+  def set_output_format(self, output_format: VideoOutputFormat):
+    self._output_format = output_format
+
+  def get_output_format(self) -> VideoOutputFormat:
     """Returns an FFmpeg output format suitable for this codec."""
-    # TODO: consider VP9 in mp4 by default
-    # TODO(#31): add support for configurable output format per-codec
-    if self == VideoCodec.VP9:
-      return 'webm'
-    elif self in {VideoCodec.H264, VideoCodec.HEVC}:
-      return 'mp4'
-    elif self == VideoCodec.AV1:
-      return 'mp4'
-    else:
-      assert False, 'No mapping for output format for codec {}'.format(
-          self.value)
+    if self._output_format is None:
+      raise RuntimeError('No mapping for output format for codec {}'.format(
+        self.value))
+    return self._output_format
+
+
+DEFAULLT_VIDEO_CODECS_OUTPUT_FORMAT = {
+  VideoCodec.AV1: VideoOutputFormat.MP4,
+  VideoCodec.VP9: VideoOutputFormat.WEBM,
+  VideoCodec.H264: VideoOutputFormat.MP4,
+  VideoCodec.HEVC: VideoOutputFormat.MP4,
+}
 
 
 class AudioChannelLayout(configuration.RuntimeMap):
@@ -397,3 +424,25 @@ class BitrateConfig(configuration.Base):
   object with all the parameters of how 1080p video would be encoded (max size,
   bitrates, etc.)
   """
+
+  video_codecs_format_map = configuration.Field(
+    Dict[VideoCodec, VideoOutputFormat],
+    default=DEFAULLT_VIDEO_CODECS_OUTPUT_FORMAT).cast()
+  """A map from video codecs to their prefered output format."""
+
+  audio_codecs_format_map = configuration.Field(
+    Dict[AudioCodec, AudioOutputFormat],
+    default=DEFAULLT_AUDIO_CODECS_OUTPUT_FORMAT).cast()
+  """A map from audio codecs to their prefered output format."""
+
+  @classmethod
+  def set_codec_format(
+    cls,
+    audio_codecs_format_map: Dict[AudioCodec, AudioOutputFormat],
+    video_codecs_format_map: Dict[VideoCodec, VideoOutputFormat]):
+
+    for acodec, aoutput_format in audio_codecs_format_map.items():
+      acodec.set_output_format(aoutput_format)
+
+    for vcodec, voutput_format in video_codecs_format_map.items():
+      vcodec.set_output_format(voutput_format)

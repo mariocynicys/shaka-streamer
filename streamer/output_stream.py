@@ -58,8 +58,9 @@ class OutputStream(object):
 
   def is_dash_only(self) -> bool:
     """Returns True if the output format is restricted to DASH protocol"""
-    assert self.codec is not None
-    return self.codec.get_output_format() is 'webm'
+    if self.codec is not None:
+      return self.codec.get_output_format() == 'webm'
+    return False
 
 class AudioOutputStream(OutputStream):
 
@@ -92,7 +93,7 @@ class AudioOutputStream(OutputStream):
       'language': input.language,
       'channels': str(self.channels),
       'bitrate': self.get_bitrate(),
-      'format': self.codec.get_output_format(),
+      'format': self.codec.get_output_format().value,
       'codec': self.codec.value,
     }
 
@@ -118,7 +119,7 @@ class VideoOutputStream(OutputStream):
     self._features = {
       'resolution_name': self.resolution.get_key(),
       'bitrate': self.get_bitrate(),
-      'format': self.codec.get_output_format(),
+      'format': self.codec.get_output_format().value,
       'codec': self.codec.value,
     }
 

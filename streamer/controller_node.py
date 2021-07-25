@@ -153,6 +153,8 @@ class ControllerNode(object):
     # can be validated accordingly.
     VideoResolution.set_map(bitrate_config.video_resolutions)
     AudioChannelLayout.set_map(bitrate_config.audio_channel_layouts)
+    BitrateConfig.set_codec_format(bitrate_config.audio_codecs_format_map,
+                                   bitrate_config.video_codecs_format_map)
 
     self._input_config = InputConfig(input_config_dict)
     self._pipeline_config = PipelineConfig(pipeline_config_dict)
