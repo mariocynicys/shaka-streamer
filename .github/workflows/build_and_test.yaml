@@ -14,7 +14,7 @@ on:
     inputs:
       ref:
         description: "The ref to build and test."
-        required: False
+        required: True
 
 defaults:
   run:
