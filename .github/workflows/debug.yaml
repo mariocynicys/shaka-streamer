@@ -47,6 +47,7 @@ jobs:
           echo "PYTHONPATH=$GITHUB_WORKSPACE/binaries:$PYTHONPATH" >> $GITHUB_ENV
 
       - name: Run tests
+        continue-on-error: true
         run: |
           WRAPPER="xvfb-run -a"
           # Use the "spec" reporter for clearer logs in GitHub Actions
@@ -57,6 +58,3 @@ jobs:
         with:
           path: test_logs.log
 
-      - name: Debug on failure
-        uses: mxschmitt/action-tmate@v3
-        if: ${{ failure() }}
