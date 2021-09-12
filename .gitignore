@@ -17,3 +17,4 @@ ffmpeg*
 ffprobe*
 packager*
 .mypy_cache/
+*.log
