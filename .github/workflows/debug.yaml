@@ -60,3 +60,5 @@ jobs:
             ./output.log
             ./error.log
 
+      - name: Tmate
+        uses: mxschmitt/action-tmate@v3
