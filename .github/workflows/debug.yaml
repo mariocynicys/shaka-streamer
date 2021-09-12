@@ -1,0 +1,57 @@
+name: Debugging
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "The ref to build and test."
+        required: False
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build_and_test:
+
+    name: Build and test linux-x64 Python 3.8
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+
+      - name: Set Python version
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.8"
+
+      - name: Debug Python version
+        run: python3 --version
+
+      - name: Install Python deps
+        run: |
+          python3 -m pip install --upgrade pyyaml flask mypy==0.812 wheel
+          if [[ '${{ runner.os }}' == 'Windows' ]]; then
+            python3 -m pip install --upgrade pywin32
+          fi
+
+      - name: Download binaries
+        run: |
+          # Fetch binaries locally instead of installing the release version of
+          # the binary package.  This lets us test changes to the binary package
+          # before it is released.
+          python3 binaries/build_wheels.py
+          echo "PYTHONPATH=$GITHUB_WORKSPACE/binaries:$PYTHONPATH" >> $GITHUB_ENV
+
+      - name: Run tests
+        run: |
+          WRAPPER="xvfb-run -a"
+          # Use the "spec" reporter for clearer logs in GitHub Actions
+          $WRAPPER python3 run_end_to_end_tests.py --reporters spec
+
+      - name: Debug on failure
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ failure() }}
