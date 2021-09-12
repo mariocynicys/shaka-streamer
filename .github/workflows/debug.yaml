@@ -56,5 +56,5 @@ jobs:
       - name: Upload logs
         uses: actions/upload-artifact@v2
         with:
-          path: *.log
+          path: ./*.log
 
