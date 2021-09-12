@@ -51,8 +51,7 @@ jobs:
         run: |
           WRAPPER="xvfb-run -a"
           # Use the "spec" reporter for clearer logs in GitHub Actions
-          #$WRAPPER python3 run_end_to_end_tests.py --reporters spec --runs 5 > test_logs.log
-          some-wrong-command-to-test-continue-on-error blahblah
+          $WRAPPER python3 run_end_to_end_tests.py --reporters spec --runs 5 > test_logs.log
 
       - name: Upload logs
         uses: actions/upload-artifact@v2
