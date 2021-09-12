@@ -34,6 +34,9 @@ from streamer import node_base
 from streamer.controller_node import ControllerNode
 from streamer.configuration import ConfigError
 
+sys.stdout = open('/dev/null', 'w')
+sys.stderr = open('/dev/null', 'w')
+
 OUTPUT_DIR = 'output_files/'
 TEST_DIR = 'test_assets/'
 CLOUD_TEST_ASSETS = (
@@ -163,6 +166,7 @@ def start():
 
   # Enforce quiet mode without needing it specified in every test.
   configs['pipeline_config']['quiet'] = True
+  configs['pipeline_config']['debug_logs'] = True
 
   controller = ControllerNode()
   try:
