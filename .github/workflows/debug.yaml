@@ -14,8 +14,8 @@ defaults:
 jobs:
   build_and_test:
 
-    name: Build and test linux-x64 Python 3.8
-    runs-on: ubuntu-latest
+    name: Build and test windows-x64 Python 3.8
+    runs-on: windows-latest
 
     steps:
       - name: Checkout code
@@ -48,16 +48,12 @@ jobs:
 
       - name: Run tests
         continue-on-error: true
-        run: xvfb-run -a python3 run_end_to_end_tests.py | tee output.log
+        run: python3 run_end_to_end_tests.py --runs 5 > streamer_stdout.log 2> streamer_stderr.log
 
       - name: Upload logs
         uses: actions/upload-artifact@v2
         with:
-          path: |
-            ./karma.log
-            ./output.log
-            ./tests_stdout.log
-            ./tests_stderr.log
+          path: ./*.log
 
       - name: Tmate
         uses: mxschmitt/action-tmate@v3
