@@ -52,7 +52,14 @@ jobs:
 
       - name: Run tests
         continue-on-error: true
-        run: python3 run_end_to_end_tests.py --runs 5 > streamer_stdout.log 2> streamer_stderr.log
+        run: |
+          if [[ '${{ runner.os }}' == 'Linux' ]]; then
+            # Run without X11 on Linux by using xvfb.
+            WRAPPER="xvfb-run -a"
+          else
+            WRAPPER=""
+          fi
+          $WRAPPER python3 run_end_to_end_tests.py --runs 5 > streamer_stdout.log 2> streamer_stderr.log
 
       - name: Upload logs
         uses: actions/upload-artifact@v2
