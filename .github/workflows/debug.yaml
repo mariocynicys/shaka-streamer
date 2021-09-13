@@ -44,7 +44,11 @@ jobs:
           # the binary package.  This lets us test changes to the binary package
           # before it is released.
           python3 binaries/build_wheels.py
-          echo "PYTHONPATH=$GITHUB_WORKSPACE/binaries:$PYTHONPATH" >> $GITHUB_ENV
+          if [[ '${{ runner.os }}' == 'Windows' ]]; then
+            echo "PYTHONPATH=$GITHUB_WORKSPACE\\binaries;$PYTHONPATH" >> $GITHUB_ENV
+          else
+            echo "PYTHONPATH=$GITHUB_WORKSPACE/binaries:$PYTHONPATH" >> $GITHUB_ENV
+          fi
 
       - name: Run tests
         continue-on-error: true
