@@ -14,8 +14,8 @@ defaults:
 jobs:
   build_and_test:
 
-    name: Build and test windows-x64 Python 3.8
-    runs-on: windows-latest
+    name: Build and test Linux-x64 Python 3.8
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
