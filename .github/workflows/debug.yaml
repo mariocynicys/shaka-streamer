@@ -51,14 +51,12 @@ jobs:
         run: |
           #WRAPPER="xvfb-run -a"
           # Use the "spec" reporter for clearer logs in GitHub Actions
-          python3 run_end_to_end_tests.py --reporters spec --runs 5 > output.log 2> error.log
+          python3 run_end_to_end_tests.py --runs 5 | tee output.log
 
       - name: Upload logs
         uses: actions/upload-artifact@v2
         with:
-          path: |
-            ./output.log
-            ./error.log
+          path: ./output.log
 
       - name: Tmate
         uses: mxschmitt/action-tmate@v3
