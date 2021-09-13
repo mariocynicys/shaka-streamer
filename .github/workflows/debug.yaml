@@ -53,7 +53,11 @@ jobs:
       - name: Upload logs
         uses: actions/upload-artifact@v2
         with:
-          path: ./output.log
+          path: |
+            ./karma.log
+            ./output.log
+            ./tests_stdout.log
+            ./tests_stderr.log
 
       - name: Tmate
         uses: mxschmitt/action-tmate@v3
