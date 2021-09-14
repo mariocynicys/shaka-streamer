@@ -21,18 +21,13 @@ _cpu = {
   'aarch64': 'arm64',
 }[platform.machine()]
 
-# Compute the part of the file name that indicates the extension.
-_ext = {
-  'Windows': '.exe',
-}.get(platform.machine(), '')
-
 # Module level variables.
-ffmpeg = os.path.join(_dir_path, 'ffmpeg-{}-{}{}'.format(_os, _cpu, _ext))
+ffmpeg = os.path.join(_dir_path, 'ffmpeg-{}-{}'.format(_os, _cpu))
 """The path to the installed FFmpeg binary."""
 
-ffprobe = os.path.join(_dir_path, 'ffprobe-{}-{}{}'.format(_os, _cpu, _ext))
+ffprobe = os.path.join(_dir_path, 'ffprobe-{}-{}'.format(_os, _cpu))
 """The path to the installed FFprobe binary."""
 
-packager = os.path.join(_dir_path, 'packager-{}-{}{}'.format(_os, _cpu, _ext))
+packager = os.path.join(_dir_path, 'packager-{}-{}'.format(_os, _cpu))
 """The path to the installed Shaka Packager binary."""
 
