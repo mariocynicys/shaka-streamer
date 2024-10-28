@@ -66,6 +66,10 @@ jobs:
             python3 -m pip install --upgrade pywin32
           fi
 
+
+      - name: MyPy It
+        run: mypy streamer
+
       - name: Download binaries
         run: |
           # Fetch binaries locally instead of installing the release version of
