@@ -158,7 +158,8 @@ class RequestHandlerBase(BaseHTTPRequestHandler):
       # If |suppress|, we read the input but don't do anything with it.
       self.rfile.read(content_length)
     else:
-      self.handle_non_chunked(self.path, content_length, self.rfile)
+      # Ignoring type checking here since mypy confuses the type of `rfile` on different platforms (and across different versions).
+      self.handle_non_chunked(self.path, content_length, self.rfile) # type: ignore
 
   def do_PUT(self) -> None:
     """Handle PUT requests coming from Shaka Packager."""
